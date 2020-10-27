@@ -13,27 +13,19 @@ def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
   
-  '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  '''
-
+  # Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  
   CORS(app,resources={'/':{'origins':'*'}})
 
-  '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
-  '''
+  # Access-Allow-Control set up
   @app.after_request
   def after_request(response):
         response.headers.add("Access-Control-Allow-Headers","Content-Type,Authorization,True")
         response.headers.add("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS")
         return response
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
-  for all available categories.
-  '''
-
+  
+  # Get all the available categories
   @app.route("/categories",methods=['GET'])
   def get_categories():
         categories = Category.query.all()
@@ -57,6 +49,20 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  
+  @app.route("/questions")
+  def index():
+    selection = Question.query.order_by(Question.id.desc()).all()
+    questions = paginate(request,selection)
+    categories = Category.query.all()
+    print([category.format() for category in categories])
+    return jsonify({
+      "data":True,
+      "success":True,
+      "total_questions":len(selection),
+      "categories":[category.format() for category in categories],
+      "questions":[q.format() for q in questions]
+    })
 
 
 
@@ -268,20 +274,6 @@ def create_app(test_config=None):
   app.register_error_handler(422,unprocessable_error_handler)
 
 
-
-  @app.route("/questions")
-  def index():
-        selection = Question.query.order_by(Question.id.desc()).all()
-        questions = paginate(request,selection)
-        categories = Category.query.all()
-        print([category.format() for category in categories])
-        return jsonify({
-          "data":True,
-          "success":True,
-          "total_questions":len(selection),
-          "categories":[category.format() for category in categories],
-          "questions":[q.format() for q in questions]
-        })
 
   @app.route("/questions/<int:question_id>",methods=['POST','GET'])
   def questions(question_id):
