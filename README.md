@@ -38,6 +38,34 @@ Pay special attention to what data the frontend is expecting from each API respo
 ### Getting Started
 * BASE URL: Currently this application is hosted only locally. The backend is hosted at http://localhost:5000/
 * Authentication: This version does not require authentication or api keys.
+
+
+
+### API Endpoints
+
+* Get all the categories
+sample url : `http://localhost:5000/categories`
+
+Response Example
+
+```javascript
+{
+    "success":true,
+    "categories_count":3,
+    "categories":[
+        {
+            "id":1,
+            "type:"history"
+        },
+        {
+            "id":2,
+            "type":"geography"
+        }
+    ]
+}
+```
+
+
 ### Error Handling
 This version currently handles 3 main types of errors:
 * 400 - BAD REQUESTION
