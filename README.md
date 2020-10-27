@@ -43,8 +43,10 @@ Pay special attention to what data the frontend is expecting from each API respo
 
 ### API Endpoints
 
-* Get all the categories
-sample url : `http://localhost:5000/categories`
+### GET /categories
+
+Returns all the categories
+Sample URL : `http://localhost:5000/categories`
 
 Response Example
 
@@ -65,6 +67,46 @@ Response Example
 }
 ```
 
+
+### GET /questions
+Returns the list of questions
+Returned questions are paginated in a group of 10
+Also returns the list of categories and total questions count
+
+Sample URL : `http://localhost:5000/questions` or `http://localhost:5000/questions?page=1` 
+
+Response Example
+
+```javascript
+{   
+    "success":true,
+    "categories":[
+        {
+            "id":1,
+            "type":"geography"
+        },
+        {
+            "id":2,
+            "type":"history"
+        }
+    ],
+    "questions":[
+        {
+        "question":"What is the national sports of India",
+        "answer":"Hockey",
+        "category":"sports",
+        "difficulty":1
+        },
+        {
+        "question":"Who was the first prime minister of India",
+        "answer":"Jawaharlal Nehru",
+        "category":"history",
+        "difficulty":2
+        },
+    ],
+    "total_questions":20
+}
+```
 
 ### Error Handling
 This version currently handles 3 main types of errors:
