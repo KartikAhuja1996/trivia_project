@@ -45,8 +45,8 @@ Pay special attention to what data the frontend is expecting from each API respo
 
 ### GET /categories
 
-Returns all the categories
-Sample URL : `http://localhost:5000/categories`
+* Returns all the categories
+* Sample URL : `http://localhost:5000/categories`
 
 Response Example
 
@@ -69,9 +69,11 @@ Response Example
 
 
 ### GET /questions
-Returns the list of questions
-Returned questions are paginated in a group of 10
-Also returns the list of categories and total questions count
+
+Details
+* Returns the list of questions
+* Returned questions are paginated in a group of 10
+* Also returns the list of categories and total questions count
 
 Sample URL : `http://localhost:5000/questions` or `http://localhost:5000/questions?page=1` 
 
