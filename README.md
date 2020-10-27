@@ -21,7 +21,7 @@ In this project flask,sqlalchemy,postgress are used for the backend and react,bo
 
 1. setup the virtual enviroment
 
-``
+
 
 
 ### Frontend Dependencies
@@ -36,20 +36,20 @@ Pay special attention to what data the frontend is expecting from each API respo
 ## API Refrence
 
 ### Getting Started
-    * BASE URL: Currently this application is hosted only locally. The backend is hosted at http://localhost:5000/
-    * Authentication: This version does not require authentication or api keys.
+* BASE URL: Currently this application is hosted only locally. The backend is hosted at http://localhost:5000/
+* Authentication: This version does not require authentication or api keys.
 ### Error Handling
-    This version currently handles 3 main types of errors:
-        * 400 - BAD REQUESTION
-        * 404 - RESOURCES NOT FOUND
-        * 422 - UNPROCESSABLE
+This version currently handles 3 main types of errors:
+* 400 - BAD REQUESTION
+* 404 - RESOURCES NOT FOUND
+* 422 - UNPROCESSABLE
     
-    Errors are retured in JSON in the following structured way
-        ```json
-            {
-                "error":404,
-                "success":false,
-                "message":"resource not found"
-            }
-        ``` 
+Errors are retured in JSON in the following structured way
+    ```json
+        {
+            "error":404,
+            "success":false,
+            "message":"resource not found"
+        }
+    ```
 
