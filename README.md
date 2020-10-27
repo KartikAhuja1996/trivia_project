@@ -45,11 +45,11 @@ This version currently handles 3 main types of errors:
 * 422 - UNPROCESSABLE
     
 Errors are retured in JSON in the following structured way
-    ```json
-        {
-            "error":404,
-            "success":false,
-            "message":"resource not found"
-        }
-    ```
+```javascript
+    {
+        "error":404,
+        "success":false,
+        "message":"resource not found"
+    }
+```
 
