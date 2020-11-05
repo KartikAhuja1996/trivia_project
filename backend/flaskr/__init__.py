@@ -140,10 +140,12 @@ def create_app(test_config=None):
   @app.route("/questions/search",methods = ['POST'])
   def search_question():
     data = request.get_json()
-    search_keyword = data.get("keyword",None).lower()
+    search_keyword = data.get("keyword",None)
     if(search_keyword is None):
-      return abort(422)
-    questions = Question.query.filter(Question.question.ilike("%{}%".format(search_keyword))).all()
+      return abort(400)
+    questions = Question.query.filter(Question.question.ilike("%{}%".format(search_keyword.lower()))).all()
+    if(len(questions) == 0):
+      return abort(404)
     return jsonify({
       "success":True,
       "questions_count":len(questions),
@@ -258,14 +260,14 @@ def create_app(test_config=None):
         return jsonify({
           "success":False,
           "message":"Bad Request",
-          "error":400
+          "status_code":400
         }),400
   
   @app.errorhandler(422)
   def unprocessable_error_handler(self):
         return jsonify({
           "success":False,
-          "error":422,
+          "status_code":422,
           "message":"unprocessable"
         })
 

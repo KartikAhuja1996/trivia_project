@@ -32,6 +32,7 @@ class Question(db.Model):
   answer = db.Column(db.String)
   category = db.Column(db.Integer,ForeignKey('categories.id'),nullable=True)
   difficulty = Column(db.Integer)
+  rating = Column(db.Integer,nullable=True)
 
   def __init__(self, question, answer, category, difficulty):
     self.question = question
@@ -56,7 +57,8 @@ class Question(db.Model):
       'question': self.question,
       'answer': self.answer,
       'category': Category.query.get(self.category).type,
-      'difficulty': self.difficulty
+      'difficulty': self.difficulty,
+      'rating':self.rating
     }
 
 '''

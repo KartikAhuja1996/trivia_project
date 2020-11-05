@@ -80,8 +80,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],True)
         Question.query.get(data['question']['id']).delete()
 
-    # test the search question endpoint api 
-    def test_search_question(self):
+    # test the search questions endpoint api 
+    def test_search_questions(self):
         search_keyword = "which"
         res = self.client().post("/questions/search",json={"keyword":search_keyword})
         data = json.loads(res.data)
@@ -89,7 +89,16 @@ class TriviaTestCase(unittest.TestCase):
         actual_questions_count = len(actual_questions)
         self.assertEqual(data['questions_count'],actual_questions_count)
         self.assertEqual(data['questions'],[q.format() for q in actual_questions])
-
+    
+    # test the search questions endpoint if question not found
+    def test_search_questions_not_found(self):
+        search_keyword = "gell"
+        res = self.client().post("/questions/search",json={'keyword':search_keyword})
+        data = json.loads(res.data)
+        self.assertEqual(data['status_code'],404)
+        self.assertEqual(data['success'],False)    
+        self.assertEqual(data['message'],"Resource Not Found")
+    
 
     # test to check all the questions in the category
     def test_get_questions_in_category(self):
@@ -108,6 +117,29 @@ class TriviaTestCase(unittest.TestCase):
             self.assertEqual(data['questions'][i]['category'],Category.query.get(actual_res_data[i].category).format()['type'])
             self.assertEqual(data['questions'][i]['difficulty'],actual_res_data[i].difficulty)
             self.assertEqual(data['questions'][i],actual_res_data[i].format())
+
+
+
+    # Test 404 error Resource Not Found
+    def test_404_error(self):
+        res = self.client().get("/random/url/notfound")
+        data = json.loads(res.data)
+        self.assertEqual(data['success'],False)
+        self.assertEqual(data['status_code'],404)
+        self.assertEqual(data['message'],'Resource Not Found')
+
+    # Test 400 error Bad Request 
+    def test_400_error(self):
+        res = self.client().post('/questions/search',json={'name':'kartik'})
+        data = json.loads(res.data)
+        self.assertEqual(data['status_code'],400)
+        self.assertEqual(data['message'],'Bad Request')
+        self.assertEqual(data['success'],False)
+    
+
+    
+
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
