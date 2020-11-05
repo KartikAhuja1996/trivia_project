@@ -71,7 +71,14 @@ class TriviaTestCase(unittest.TestCase):
         q.delete()
 
     def test_add_question(self):
-        pass
+        res = self.client().post("/questions",json={'question':'What is your name?','answer':'kartik','category':1,'difficulty':5})
+        data = json.loads(res.data)
+        self.assertEqual(data['question']['question'],'What is your name?')
+        self.assertEqual(data['question']['answer'],'kartik')
+        self.assertEqual(data['question']['category'],Category.query.get(1).format()['type'])
+        self.assertEqual(data['question']['difficulty'],5)
+        self.assertEqual(data['success'],True)
+        Question.query.get(data['question']['id']).delete()
 
     # test the search question endpoint api 
     def test_search_question(self):
@@ -87,7 +94,8 @@ class TriviaTestCase(unittest.TestCase):
     # test to check all the questions in the category
     def test_get_questions_in_category(self):
         category_id = 1
-        res = self.client().get("/categories/{}/questions".format(category_id))
+        api_endpoint = "/categories/{}/questions".format(category_id)
+        res = self.client().post(api_endpoint)
         actual_res_data = Question.query.filter(Question.category == category_id).all()
         actual_current_category = Category.query.get(category_id)
         data = json.loads(res.data)
@@ -97,7 +105,7 @@ class TriviaTestCase(unittest.TestCase):
         for i in range(0,len(data['questions'])):
             self.assertEqual(data['questions'][i]['question'],actual_res_data[i].question)
             self.assertEqual(data['questions'][i]['answer'],actual_res_data[i].answer)
-            self.assertEqual(data['questions'][i]['category'],actual_res_data[i].category)
+            self.assertEqual(data['questions'][i]['category'],Category.query.get(actual_res_data[i].category).format()['type'])
             self.assertEqual(data['questions'][i]['difficulty'],actual_res_data[i].difficulty)
             self.assertEqual(data['questions'][i],actual_res_data[i].format())
 

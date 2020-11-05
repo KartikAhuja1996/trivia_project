@@ -47,6 +47,7 @@ class QuestionView extends Component {
   createPagination(){
     let pageNumbers = [];
     let maxPage = Math.ceil(this.state.totalQuestions / 3)
+    console.log()
     console.log("Max Pages " + maxPage);
     for (let i = 1; i <= maxPage; i++) {
       pageNumbers.push(
@@ -62,7 +63,7 @@ class QuestionView extends Component {
   getByCategory= (id) => {
     $.ajax({
       url: `/categories/${id}/questions`, //TODO: update request URL
-      type: "GET",
+      type: "POST",
       success: (result) => {
         this.setState({ 
           questions: result.questions,

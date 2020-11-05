@@ -69,7 +69,7 @@ Response Example
 
 
 ### GET /questions
-
+    
 Details
 * Returns the list of questions
 * Returned questions are paginated in a group of 10

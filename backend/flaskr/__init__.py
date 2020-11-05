@@ -162,7 +162,7 @@ def create_app(test_config=None):
   category to be shown. 
   '''
 
-  @app.route("/categories/<int:category_id>/questions")
+  @app.route("/categories/<int:category_id>/questions",methods=['POST'])
   def handle_category_questions(category_id):
         category = Category.query.get(category_id)
         if(category is None):
