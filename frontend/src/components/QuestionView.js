@@ -4,6 +4,7 @@ import '../stylesheets/App.css';
 import Question from './Question';
 import Search from './Search';
 import $ from 'jquery';
+import axios from 'axios';
 
 class QuestionView extends Component {
   constructor(){
@@ -14,6 +15,8 @@ class QuestionView extends Component {
       totalQuestions: 0,
       categories: [],
       currentCategory: null,
+      show_category_form:false,
+      category:""
     }
   }
 
@@ -44,6 +47,11 @@ class QuestionView extends Component {
     this.setState({page: num}, () => this.getQuestions());
   }
 
+  handleChange = (event) =>{
+    this.setState({[event.target.name]:event.target.value});
+  }
+
+
   createPagination(){
     let pageNumbers = [];
     let maxPage = Math.ceil(this.state.totalQuestions / 3)
@@ -58,6 +66,19 @@ class QuestionView extends Component {
         </span>)
     }
     return pageNumbers;
+  }
+
+  getCategories = ()=>{
+    $.ajax({
+      url:'/categories',
+      type:'GET',
+      success:(result)=>{
+        console.log(result.categories);
+        this.setState({
+          categories:result.categories
+        })
+      }
+    })
   }
 
   getByCategory= (id) => {
@@ -121,6 +142,34 @@ class QuestionView extends Component {
     }
   }
 
+  toggleCategoryForm = () => {
+    this.setState({
+      show_category_form:this.state.show_category_form?false:true
+    });
+    
+  }
+
+  onFileChange = (event) =>{
+    this.setState({selectedFile:event.target.files[0]});
+  }
+
+  onSubmitCategoryForm = (event) =>{
+    event.preventDefault();
+    var self = this;
+    var formdata = new FormData();
+    if(this.state.selectedFile != null){
+      formdata.append('icon',this.state.selectedFile,this.state.selectedFile.name);  
+    }
+    else{
+      return;
+    }
+    formdata.append('type',this.state.category);
+    axios.post('/categories',formdata).then((response)=>{
+      console.log(response);
+      self.getCategories();
+    });
+    
+  }
   render() {
     return (
       <div className="question-view">
@@ -130,10 +179,17 @@ class QuestionView extends Component {
             {this.state.categories.map((category) => (
               <li key={category.id} onClick={() => {this.getByCategory(category.id)}}>
                 {category.type}
-                <img className="category" src={`${category.type}.svg`}/>
+                <img className="category" src={`/${category.type}.svg`}/>
               </li>
             ))}
           </ul>
+          <p onClick={() => {this.toggleCategoryForm()} }>+ Add Category</p>
+          
+          <form method="POST" onSubmit={this.onSubmitCategoryForm} encType="multipart/form-data" style={{'visibility':this.state.show_category_form?'visible':'hidden'}}>
+            <input type="text" name="category" placeholder="Category Name" onChange={this.handleChange}/>
+            <input type="file" name="icon" onChange={this.onFileChange}/>
+            <button type="submit">Add</button>
+          </form>
           <Search submitSearch={this.submitSearch}/>
         </div>
         <div className="questions-list">
@@ -145,6 +201,7 @@ class QuestionView extends Component {
               answer={q.answer}
               category={q.category} 
               difficulty={q.difficulty}
+              rating={q.rating}
               questionAction={this.questionAction(q.id)}
             />
           ))}

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
@@ -8,9 +8,26 @@ from models import setup_db, Question, Category,db
 
 from helpers import paginate
 
+from werkzeug.utils import secure_filename
+
+
+UPLOAD_FOLDER = "static"
+ALLOWED_EXTENSIONS = {'svg','png','jpeg','jpg'}
+
+
+def allowed_file(filename):
+    return "." in filename and \
+        filename.rsplit(".",1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+
+
+
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
+  app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
   setup_db(app)
   
   # Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -26,15 +43,32 @@ def create_app(test_config=None):
 
   
   # Get all the available categories
-  @app.route("/categories",methods=['GET'])
+  @app.route("/categories",methods=['GET','POST'])
   def get_categories():
-        categories = Category.query.all()
-        return jsonify({
-          "success":True,
-          "categories":[c.format() for c in categories],
-          "categories_count":len(categories)
-        })
-
+        if(request.method =='GET'):
+          categories = Category.query.all()
+          return jsonify({
+            "success":True,
+            "categories":[c.format() for c in categories],
+            "categories_count":len(categories)
+          })
+        if(request.method == 'POST'):
+          category_type = request.form.get('type')
+          if('icon' not in request.files):
+            abort(422)
+          icon = request.files['icon']
+          if icon.filename == '':
+            abort(400)
+          if icon and allowed_file(icon.filename) and category_type is not None:
+            iconname = secure_filename(icon.filename)
+            category = Category(type=category_type,icon=iconname)
+            category.insert()
+            icon.save(os.path.join(app.config['UPLOAD_FOLDER']+"/icons",iconname))
+            return jsonify({
+              'success':True,
+              'message':'Added Successfully',
+              'category':category.format()
+            })
 
 
   '''
@@ -113,9 +147,12 @@ def create_app(test_config=None):
     answer = data.get('answer',None)
     category_id = data.get('category',None)
     difficulty = data.get('difficulty',None)
-    if((question is None) and (answer is None) and (category_id is None) and (difficulty is None)):    
+    rating = data.get('rating',None)
+    if((question is None) and (answer is None) and (category_id is None) and (difficulty is None) and (rating is None)):    
       return abort(400)
-    q = Question(question=question,answer=answer,category=category_id,difficulty=difficulty)
+    if(question == '' or answer == '' or category_id == 0 or difficulty == 0 or rating == 0):
+      return abort(400)
+    q = Question(question=question,answer=answer,category=category_id,difficulty=difficulty,rating=rating)
     q.insert()
     return jsonify({
       'success':True,
@@ -236,10 +273,13 @@ def create_app(test_config=None):
       'question':question.format()
     })
     
+  @app.route("/uploads/<file_name>",methods=['GET'])
+  def uploaded_file(file_name):
+    print(file_name)
+    return send_from_directory(app.config['UPLOAD_FOLDER']+"/icons/",file_name)
 
+           
 
-
-              
 
   '''
   @TODO: 

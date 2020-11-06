@@ -62,7 +62,7 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_delete_question(self):
         question_id=1
-        q = Question(question="Which is the tallest mountain in the world?",answer="Mount Everest",category=1,difficulty=1)
+        q = Question(question="Which is the tallest mountain in the world?",answer="Mount Everest",category=1,difficulty=1,rating=1)
         q.insert()
         res = self.client().delete("/questions/{}".format(question_id))
         data = json.loads(res.data)

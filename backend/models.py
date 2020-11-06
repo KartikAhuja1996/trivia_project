@@ -4,10 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
 
+
 database_name = "trivia"
 database_path = "postgres://{}:{}@{}/{}".format('postgres','pass','localhost:5432', database_name)
 
 db = SQLAlchemy()
+
+UPLOAD_FOLDER = "static"
 
 '''
 setup_db(app)
@@ -34,11 +37,12 @@ class Question(db.Model):
   difficulty = Column(db.Integer)
   rating = Column(db.Integer,nullable=True)
 
-  def __init__(self, question, answer, category, difficulty):
+  def __init__(self, question, answer, category, difficulty,rating):
     self.question = question
     self.answer = answer
     self.category = category
     self.difficulty = difficulty
+    self.rating = rating
 
   def insert(self):
     db.session.add(self)
@@ -68,14 +72,22 @@ Category
 class Category(db.Model): 
 
   __tablename__ = 'categories'
-  id = db.Column(db.Integer, primary_key=True)
+  id = db.Column(db.Integer,primary_key=True)
   type = db.Column(db.String)
+  icon = db.Column(db.String,nullable = True)
   questions = db.relationship("Question",backref="categories",lazy=True)
-  def __init__(self, type):
+
+  def __init__(self,type,icon):
     self.type = type
+    self.icon = icon
+
+  def insert(self):
+    db.session.add(self)
+    db.session.commit()
 
   def format(self):
     return {
       'id': self.id,
-      'type': self.type
+      'type': self.type,
+      'icon_path':"uploads/" + str(self.icon)
     }

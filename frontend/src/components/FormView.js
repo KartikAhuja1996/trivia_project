@@ -10,6 +10,7 @@ class FormView extends Component {
       question: "",
       answer: "",
       difficulty: 1,
+      rating:1,
       category: 0,
       categories: []
     }
@@ -34,6 +35,7 @@ class FormView extends Component {
 
   submitQuestion = (event) => {
     event.preventDefault();
+    
     $.ajax({
       url: '/questions', //TODO: update request URL
       type: "POST",
@@ -43,7 +45,8 @@ class FormView extends Component {
         question: this.state.question,
         answer: this.state.answer,
         difficulty: this.state.difficulty,
-        category: this.state.category 
+        category: this.state.category,
+        rating:this.state.rating 
       }),
       xhrFields: {
         withCredentials: true
@@ -81,6 +84,16 @@ class FormView extends Component {
           <label>
             Difficulty
             <select name="difficulty" onChange={this.handleChange}>
+              <option key = '1' value="1">1</option>
+              <option key = '2' value="2">2</option>
+              <option key = '3' value="3">3</option>
+              <option key = '4' value="4">4</option>
+              <option key = '5' value="5">5</option>
+            </select>
+          </label>
+          <label>
+            Rating
+            <select name="rating" onChange={this.handleChange}>
               <option key = '1' value="1">1</option>
               <option key = '2' value="2">2</option>
               <option key = '3' value="3">3</option>

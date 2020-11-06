@@ -120,6 +120,56 @@ Response Example
 }
 ```
 
+
+### POST /categories/<category_id>/questions
+
+Details:
+* Returns all the questions in the category and the category fields
+* Returns the count of the questions in the category
+
+SAMPLE URL: `http://localhost:5000/categories/1/questions` where 1 is <category_id>
+
+Response Example
+
+
+```javascript
+
+    {
+        "current_category":{
+            "id":1,
+            "type":"Geography"
+        },
+        "questions":[
+        {
+        "question":"What is the national sports of India",
+        "answer":"Hockey",
+        "category":"sports",
+        "difficulty":1,
+        "id":1
+        },
+        {
+        "question":"Who was the first prime minister of India",
+        "answer":"Jawaharlal Nehru",
+        "category":"history",
+        "difficulty":2,
+        "id":2
+        },
+        {
+        "question":"Asian games last held in India",
+        "answer":"1982",
+        "category":"sports",
+        "difficulty":2,
+        "id":3
+        }],
+        "total_questions":3,
+        "success":true
+    }
+
+
+```
+
+
+
 ### Error Handling
 This version currently handles 3 main types of errors:
 * 400 - BAD REQUESTION
@@ -129,7 +179,7 @@ This version currently handles 3 main types of errors:
 Errors are retured in JSON in the following structured way
 ```javascript
     {
-        "error":404,
+        "status_code":404,
         "success":false,
         "message":"resource not found"
     }
