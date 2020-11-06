@@ -160,9 +160,55 @@ Response Example
         "category":"sports",
         "difficulty":2,
         "id":3
-        }],
+        }
+        ],
         "total_questions":3,
         "success":true
+    }
+
+
+```
+
+### POST /quizzes
+
+Details:
+* Get the random question based on the category and previous_questions if any
+* If total questions in the category are less than total questions asked in quiz it will return no question
+
+Sample URL `http://localhost:5000/quizzes`
+
+Example JSON Request Data 
+
+```javascript
+    {
+        "quiz_category":1,
+        "prev_questions":[
+            {
+                "id":1,
+                "question":"Who was the first Prime Minister of India ?",
+                "answer":"Jawaharlal Nehru",
+                "rating":"3",
+                "difficulty":"4"
+                "category":"history"
+            }
+        ]
+    }
+```
+
+Response Example
+
+```javascript
+
+    {
+        "success":true,
+        "question":{
+            "id":2,
+            "question":"The Battle of Plassey was fought in",
+            "answer":"1974",
+            "category":"history",
+            "rating":"3",
+            "difficulty":"5"
+        }
     }
 
 

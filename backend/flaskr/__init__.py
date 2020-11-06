@@ -159,7 +159,6 @@ def create_app(test_config=None):
       "question":q.format()
     })
 
-
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -236,7 +235,6 @@ def create_app(test_config=None):
     questions_len = 0
     quiz_category = data.get('quiz_category')
     prevQuestions = data.get('previous_questions')
-    print(prevQuestions)
 
     if((quiz_category is None) or (prevQuestions is None)):
       return abort(400)
@@ -261,7 +259,7 @@ def create_app(test_config=None):
 
     while(check_if_already_asked(question)):
       question = get_random_question()
-
+      
       if(len(prevQuestions) == questions_len):
         return jsonify({
           'success':True
