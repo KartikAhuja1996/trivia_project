@@ -101,7 +101,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions/search`, //TODO: update request URL
+      url: `/questions`, //TODO: update request URL
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -183,17 +183,20 @@ class QuestionView extends Component {
               </li>
             ))}
           </ul>
-          <p onClick={() => {this.toggleCategoryForm()} }>+ Add Category</p>
+          <p className="add_category"  onClick={() => {this.toggleCategoryForm()} }>+ Add Category</p>
           
-          <form method="POST" onSubmit={this.onSubmitCategoryForm} encType="multipart/form-data" style={{'visibility':this.state.show_category_form?'visible':'hidden'}}>
+          <form className="category_form" method="POST" onSubmit={this.onSubmitCategoryForm} encType="multipart/form-data" style={{'visibility':this.state.show_category_form?'visible':'hidden'}}>
+            <label for="category">Category Name</label>
             <input type="text" name="category" placeholder="Category Name" onChange={this.handleChange}/>
-            <input type="file" name="icon" onChange={this.onFileChange}/>
+            <label for="icon">Select Icon</label>
+            <input type="file" name="icon" onChange={this.onFileChange} placeholder="icon"/>
             <button type="submit">Add</button>
           </form>
-          <Search submitSearch={this.submitSearch}/>
+          
         </div>
         <div className="questions-list">
           <h2>Questions</h2>
+          <Search submitSearch={this.submitSearch}/>
           {this.state.questions.map((q, ind) => (
             <Question
               key={q.id}

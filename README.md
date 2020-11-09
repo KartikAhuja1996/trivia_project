@@ -17,20 +17,38 @@ Developers using this repo should already have installed python3,pip,node and np
 
 In this project flask,sqlalchemy,postgress are used for the backend and react,bootstrap used for the frontend.
 
-### Backend Dependencies
+### Backend Dependencies and Steps
 
-1. setup the virtual enviroment
+1. Install postgresSQL and run the following command to check if it has been successfully configured
+    `psql --version`
+
+2. Make databases for both the development and tests by running the following command
+    * `createdb -U postgres trivia`
+    * `createdb -U postgres trivia_test`
+
+2. setup the virtual enviroment by the following command
+    * first install virtualenv by running the commnad `pip3 install virtualenv`
+    * Intialize the virtualenv by running the command `virtualenv backend`
+
+3. Install all the dependencies by running following command
+    `pip install -r requirements.txt`
+
+4. Run the migrations 
+    `flask db migrate` and after that `flask db upgrade`
+
+5. Run the development server by running following commands
+    * Set the FLASK_APP and FLASK_ENV envir variable by `SET FLASK_APP=flaskr` or `SET FLASK_ENV=development`
+    * Run the backend server by `flask run`
 
 
+### Frontend Dependencies and Steps
 
+The `./frontend` directory contains a complete React frontend to consume the data from the Flask server.
 
-### Frontend Dependencies
+1. Install the dependencies by running the command below:
+    `npm install`
+2. Run the frontend server by `npm start` this command runs the start script described in the package.json file
 
-The `./frontend` directory contains a complete React frontend to consume the data from the Flask server. You will need to update the endpoints after you define them in the backend. Those areas are marked with TODO and can be searched for expediency. 
-
-Pay special attention to what data the frontend is expecting from each API response to help guide how you format your API. 
-
-[View the README.md within ./frontend for more details.](./frontend/README.md)
 
 
 ## API Refrence
@@ -120,6 +138,71 @@ Response Example
 }
 ```
 
+### POST /questions
+
+Details:
+* Insert 1 question or find the questions based on the json data parsed with the request
+
+Sample URL `http://localhost:5000/questions`
+
+Example Request JSON data
+
+1. Searching for the questions based on the keyword 
+
+```javascript
+    {
+     "keyword":"Who"   
+    }
+```
+
+OR
+
+2. Inserting questions with the relative fields
+
+```javascript{
+
+    {
+        "question":"who was the first prime minister of India?",
+        "answer":"Jawaharlal Nehru",
+        "category":3,
+        "rating":4,
+        "difficulty":3
+    }
+
+}
+```
+
+
+Response Example
+
+1. Getting the questions based on the keyword if any otherwise throw 404
+```javascript
+    {
+        "questions":[
+            {
+                "question":"who was the first prime minister of India?"
+                "answer":"Jawaharlal Nehru",
+                "category":"history",
+                "difficulty":3,
+                "rating":4,
+                "id":2
+            }
+        ],
+        "questions_count":1,
+        "success":true
+    }
+```
+
+2. Getting the success message and id after adding the question
+
+```javascript
+    {
+        "success":true,
+        "question_id":2
+    }
+
+```
+
 
 ### POST /categories/<category_id>/questions
 
@@ -168,6 +251,23 @@ Response Example
 
 
 ```
+
+### DELETE /questions/<question_id>
+
+Details
+* Delete the question based on the question_id parsed as a url parameter <question_id>
+
+Sample URL `http://localhost:5000/questions/1` where 1 is the <question_id>
+
+Example Response
+
+```javascript
+    {
+        "success":true,
+        "question_id":1
+    }
+```
+
 
 ### POST /quizzes
 
@@ -231,3 +331,8 @@ Errors are retured in JSON in the following structured way
     }
 ```
 
+
+## Credits
+
+This api(__init__.py), test suits(test_flaskr.py) and this README is developed and documented by kartik Ahuja
+All the other things like react based frontend and models are provided by the udacity for the students as a project template for UDACITY FULL STACK NANAODEGREE PROGRAME

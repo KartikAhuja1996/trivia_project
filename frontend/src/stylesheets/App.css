@@ -37,3 +37,47 @@ form {
   width: 80%;
   margin: auto;
 }
+
+
+.add_category{
+  color:red;
+  text-align: center;
+  margin:5px 50px;
+  color:white;
+  border-radius: 5px;
+  background: darkgrey;
+  padding: 10px;
+  transition: all;
+  transition-duration: 0.2s;
+}
+
+.add_category:hover{
+  background-color: dodgerblue;
+}
+
+.categories-list ul li img{
+  margin-left: 10px;
+  width: 30px;
+  height: 30px;
+}
+
+.categories-list ul li{
+  text-align: center;
+  margin:5px 20px;
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  justify-content: space-between;
+  line-height: 20px;
+  text-transform: uppercase;
+  border-radius: 5px;
+}
+
+.categories-list ul li:hover{
+  background: #d2d2d2;
+  cursor: pointer;
+}
+
+.category_form input,button{
+  margin:5px 0px;
+}

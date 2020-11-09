@@ -95,7 +95,7 @@ def create_app(test_config=None):
       "success":True,
       "total_questions":len(selection),
       "categories":[category.format() for category in categories],
-      "questions":[q.format() for q in questions]
+      "questions":[q.format() for q in questions]   
     })
 
 
@@ -143,6 +143,16 @@ def create_app(test_config=None):
   @app.route("/questions",methods=['POST'])
   def add_question():
     data = request.get_json()
+    search_term = data.get('keyword',None)
+    if search_term is not None:
+      questions = Question.query.filter(Question.question.ilike("%{}%".format(search_term.lower()))).all()
+      if(len(questions) == 0):
+        return abort(404)
+      return jsonify({
+        "success":True,
+        "questions_count":len(questions),
+        "questions":[q.format() for q in questions]
+      })
     question = data.get('question',None)
     answer = data.get('answer',None)
     category_id = data.get('category',None)
@@ -156,7 +166,7 @@ def create_app(test_config=None):
     q.insert()
     return jsonify({
       'success':True,
-      "question":q.format()
+      "question_id":q.id
     })
 
   '''
@@ -173,20 +183,20 @@ def create_app(test_config=None):
 
 
   
-  @app.route("/questions/search",methods = ['POST'])
-  def search_question():
-    data = request.get_json()
-    search_keyword = data.get("keyword",None)
-    if(search_keyword is None):
-      return abort(400)
-    questions = Question.query.filter(Question.question.ilike("%{}%".format(search_keyword.lower()))).all()
-    if(len(questions) == 0):
-      return abort(404)
-    return jsonify({
-      "success":True,
-      "questions_count":len(questions),
-      "questions":[q.format() for q in questions]
-    })
+  # @app.route("/questions/search",methods = ['POST'])
+  # def search_question():
+  #   data = request.get_json()
+  #   search_keyword = data.get("keyword",None)
+  #   if(search_keyword is None):
+  #     return abort(400)
+  #   questions = Question.query.filter(Question.question.ilike("%{}%".format(search_keyword.lower()))).all()
+  #   if(len(questions) == 0):
+  #     return abort(404)
+  #   return jsonify({
+  #     "success":True,
+  #     "questions_count":len(questions),
+  #     "questions":[q.format() for q in questions]
+  #   })
       
 
 
@@ -259,7 +269,7 @@ def create_app(test_config=None):
 
     while(check_if_already_asked(question)):
       question = get_random_question()
-      
+
       if(len(prevQuestions) == questions_len):
         return jsonify({
           'success':True

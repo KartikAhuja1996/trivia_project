@@ -8,7 +8,3 @@ def paginate(request,selection):
     end = start + ITEMS_PER_PAGE
     return selection[start:end]  
 
-
-def allowed_file(filename):
-    return "." in filename and \
-        filename.rsplit(".",1)[1].lower() in ALLOWED_EXTENSIONS
