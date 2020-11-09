@@ -315,6 +315,13 @@ Response Example
 ```
 
 
+### Run Test Suites
+All the api endpoints tests are written in test_flaskr.py to confirm the valid response on each request.
+You need to follow following steps to run tests.
+1. Create a test db using createdb command `createdb -U postgres trivia_test`
+2. Run the test by entering the command `python test_flaskr.py`
+
+
 
 ### Error Handling
 This version currently handles 3 main types of errors:
