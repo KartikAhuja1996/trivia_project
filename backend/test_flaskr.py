@@ -2,6 +2,7 @@ import os
 import unittest
 import json
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 
 from flaskr import create_app
 from models import setup_db, Question, Category
@@ -71,19 +72,17 @@ class TriviaTestCase(unittest.TestCase):
         q.delete()
 
     def test_add_question(self):
-        res = self.client().post("/questions",json={'question':'What is your name?','answer':'kartik','category':1,'difficulty':5})
+        res = self.client().post("/questions",json={'question':'What is your name?','answer':'kartik','category':1,'difficulty':5,'rating':2})
         data = json.loads(res.data)
-        self.assertEqual(data['question']['question'],'What is your name?')
-        self.assertEqual(data['question']['answer'],'kartik')
-        self.assertEqual(data['question']['category'],Category.query.get(1).format()['type'])
-        self.assertEqual(data['question']['difficulty'],5)
+        actual_data = Question.query.order_by(Question.id.desc()).all()[0]
         self.assertEqual(data['success'],True)
-        Question.query.get(data['question']['id']).delete()
+        self.assertEqual(data['question_id'],actual_data.id)
+        Question.query.get(actual_data.id).delete()
 
     # test the search questions endpoint api 
     def test_search_questions(self):
         search_keyword = "which"
-        res = self.client().post("/questions/search",json={"keyword":search_keyword})
+        res = self.client().post("/questions",json={"keyword":search_keyword})
         data = json.loads(res.data)
         actual_questions = Question.query.filter(Question.question.ilike("%{}%".format(search_keyword))).all()
         actual_questions_count = len(actual_questions)
@@ -109,7 +108,7 @@ class TriviaTestCase(unittest.TestCase):
         actual_current_category = Category.query.get(category_id)
         data = json.loads(res.data)
         self.assertEqual(data['success'],True)
-        self.assertEqual(data['total_questions'],9)
+        self.assertEqual(data['total_questions'],len(actual_current_category.questions))
         self.assertEqual(data['current_category'],actual_current_category.format())
         for i in range(0,len(data['questions'])):
             self.assertEqual(data['questions'][i]['question'],actual_res_data[i].question)
@@ -130,7 +129,7 @@ class TriviaTestCase(unittest.TestCase):
 
     # Test 400 error Bad Request 
     def test_400_error(self):
-        res = self.client().post('/questions/search',json={'name':'kartik'})
+        res = self.client().post('/questions',json={'name':'kartik'})
         data = json.loads(res.data)
         self.assertEqual(data['status_code'],400)
         self.assertEqual(data['message'],'Bad Request')
