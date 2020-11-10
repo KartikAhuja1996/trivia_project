@@ -41,6 +41,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],True)
         self.assertEqual(data['categories_count'],1)
 
+    
 
     # Test question endpoint api when question is available
     def test_get_question(self):
@@ -118,6 +119,21 @@ class TriviaTestCase(unittest.TestCase):
             self.assertEqual(data['questions'][i],actual_res_data[i].format())
 
 
+    # testing get quiz question without any previous questions
+    def test_quiz_question_without_previous_questions(self):
+        res = self.client().post("/quizzes",json={'quiz_category':1,'previous_questions':[]})
+        data = json.loads(res.data)
+        self.assertEqual(data['success'],True)
+        self.assertIsNotNone(data['question'])
+        self.assertEqual(data['question']['category'],Category.query.get(1).type)
+
+    # testing get quiz question api with all the previous questions already present in the previous_questions key
+    def test_quiz_question_with_all_previous_questions_in_query(self):
+        res = self.client().post('/quizzes',json={'quiz_category':0,'previous_questions':[3,8,9,10,11,12,13,14,15]})
+        data = json.loads(res.data)
+        self.assertEqual(data['success'],True)
+    
+
 
     # Test 404 error Resource Not Found
     def test_404_error(self):
@@ -136,6 +152,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],False)
     
 
+    # test 422 error unprocessable
+    def test_422_error(self):
+        res = self.client().post("/categories",json={
+            'type':'history'
+        })
+        data = json.loads(res.data)
+        self.assertEqual(data['success'],False)
+        self.assertEqual(data['status_code'],422)
+        self.assertEqual(data['message'],"Unprocessable")
+
+
+    # test 500 internal server error
+    def test_500_error(self):
+        res = self.client().post("/errors/500")   
+        data = json.loads(res.data)
+        self.assertEqual(data['success'],False)
+        self.assertEqual(data['status_code'],500)
+        self.assertEqual(data['message'],"Internal Server Error")  
+    
     
 
 

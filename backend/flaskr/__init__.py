@@ -37,38 +37,38 @@ def create_app(test_config=None):
   # Access-Allow-Control set up
   @app.after_request
   def after_request(response):
-        response.headers.add("Access-Control-Allow-Headers","Content-Type,Authorization,True")
-        response.headers.add("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS")
-        return response
+    response.headers.add("Access-Control-Allow-Headers","Content-Type,Authorization,True")
+    response.headers.add("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS")
+    return response
 
   
   # Get all the available categories
   @app.route("/categories",methods=['GET','POST'])
   def get_categories():
-        if(request.method =='GET'):
-          categories = Category.query.all()
-          return jsonify({
-            "success":True,
-            "categories":[c.format() for c in categories],
-            "categories_count":len(categories)
-          })
-        if(request.method == 'POST'):
-          category_type = request.form.get('type')
-          if('icon' not in request.files):
-            abort(422)
-          icon = request.files['icon']
-          if icon.filename == '':
-            abort(400)
-          if icon and allowed_file(icon.filename) and category_type is not None:
-            iconname = secure_filename(icon.filename)
-            category = Category(type=category_type,icon=iconname)
-            category.insert()
-            icon.save(os.path.join(app.config['UPLOAD_FOLDER']+"/icons",iconname))
-            return jsonify({
-              'success':True,
-              'message':'Added Successfully',
-              'category':category.format()
-            })
+    if(request.method =='GET'):
+      categories = Category.query.all()
+      return jsonify({
+        "success":True,
+        "categories":[c.format() for c in categories],
+        "categories_count":len(categories)
+      })
+    if(request.method == 'POST'):
+      category_type = request.form.get('type')
+      if('icon' not in request.files):
+        abort(422)
+      icon = request.files['icon']
+      if icon.filename == '':
+        abort(400)
+      if icon and allowed_file(icon.filename) and category_type is not None:
+        iconname = secure_filename(icon.filename)
+        category = Category(type=category_type,icon=iconname)
+        category.insert()
+        icon.save(os.path.join(app.config['UPLOAD_FOLDER']+"/icons",iconname))
+        return jsonify({
+          'success':True,
+          'message':'Added Successfully',
+          'category':category.format()
+        })
 
 
   '''
@@ -111,21 +111,21 @@ def create_app(test_config=None):
 
   @app.route('/questions/<int:question_id>',methods=['DELETE'])
   def delete_question(question_id):
-        error = False
-        question = Question.query.get(question_id)
-        if(question is not None):
-          try:
-            question.delete()
-          except:
-            error= True
-            db.session.rollback()
-          finally:
-            db.session.close()
-          
-        return jsonify({
-          "success":True,
-          "question_id":question_id
-        })
+    error = False
+    question = Question.query.get(question_id)
+    if(question is not None):
+      try:
+        question.delete()
+      except:
+        error= True
+        db.session.rollback()
+      finally:
+        db.session.close()
+      
+    return jsonify({
+      "success":True,
+      "question_id":question_id
+    })
 
 
 
@@ -212,16 +212,16 @@ def create_app(test_config=None):
 
   @app.route("/categories/<int:category_id>/questions",methods=['POST'])
   def handle_category_questions(category_id):
-        category = Category.query.get(category_id)
-        if(category is None):
-              return abort(404)
-        questions = category.questions
-        return jsonify({
-          'success':True,
-          'questions':[question.format() for question in questions],
-          'total_questions':len(questions),
-          'current_category':Category.query.get(category_id).format()
-        })
+    category = Category.query.get(category_id)
+    if(category is None):
+          return abort(404)
+    questions = category.questions
+    return jsonify({
+      'success':True,
+      'questions':[question.format() for question in questions],
+      'total_questions':len(questions),
+      'current_category':Category.query.get(category_id).format()
+    })
 
   
 
@@ -267,26 +267,61 @@ def create_app(test_config=None):
 
     question = get_random_question()
 
-    while(check_if_already_asked(question)):
-      question = get_random_question()
-
-      if(len(prevQuestions) == questions_len):
-        return jsonify({
-          'success':True
-        })
-            
+    if(len(prevQuestions) == questions_len):
+          return jsonify({
+        'success':True
+      })
+    else:
+      while(check_if_already_asked(question)):
+        question = get_random_question()
+    
+           
 
     return jsonify({
       'success':True,
       'question':question.format()
     })
-    
+
+  # get the question by the id or update the question based on the request data
+  @app.route("/questions/<int:question_id>",methods=['POST','GET'])
+  def questions(question_id):
+    if(request.method == 'GET'):
+      question = Question.query.filter(Question.id == question_id).first()
+      if(question is None):
+            return abort(404)
+      return jsonify({
+        'success':True,
+        'question':question.format()
+      })
+    elif(request.method == 'POST'):    
+      data = request.get_json()
+      question = Question.query.filter(Question.id == question_id).first()
+      if 'question' in data:
+          question.question = data['question']
+      if 'answer' in data:
+            question.answer = data['answer']
+      try:
+        question.update()
+      except:
+        db.session.rollback()
+      finally:
+        db.session.close()
+      return jsonify({
+        "success":True
+      })  
+
+
   @app.route("/uploads/<file_name>",methods=['GET'])
   def uploaded_file(file_name):
     print(file_name)
     return send_from_directory(app.config['UPLOAD_FOLDER']+"/icons/",file_name)
 
-           
+
+
+  # dummy url for validate the error 500 test
+  @app.route("/errors/500",methods=['POST'])
+  def error_500_endpoint():
+    return abort(500)    
 
 
   '''
@@ -294,63 +329,52 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+
+  # error handler for 404 not found error
   @app.errorhandler(404)
   def not_found_error_handler(self):
-      return jsonify({
-        "status_code":404,
-        "success":False,
-        "message":"Resource Not Found"
-      }),404
+    return jsonify({
+      "status_code":404,
+      "success":False,
+      "message":"Resource Not Found"
+    }),404
 
 
+  # error handler for bad request error
   @app.errorhandler(400)
   def bad_request_error_handler(self):
-        return jsonify({
-          "success":False,
-          "message":"Bad Request",
-          "status_code":400
-        }),400
+    return jsonify({
+      "success":False,
+      "message":"Bad Request",
+      "status_code":400
+    }),400
   
+  # error handler for unprocessable error
   @app.errorhandler(422)
   def unprocessable_error_handler(self):
-        return jsonify({
-          "success":False,
-          "status_code":422,
-          "message":"unprocessable"
-        })
+    return jsonify({
+      "success":False,
+      "status_code":422,
+      "message":"Unprocessable"
+    })
 
+  # error handler for internal server error
+  @app.errorhandler(500)
+  def internal_server_error_handler(self):
+    return jsonify({
+      "success":False,
+      "status_code":500,
+      "message":"Internal Server Error"
+    })
+
+  app.register_error_handler(500,internal_server_error_handler)
   app.register_error_handler(404,not_found_error_handler)
   app.register_error_handler(400,bad_request_error_handler)
   app.register_error_handler(422,unprocessable_error_handler)
 
 
 
-  @app.route("/questions/<int:question_id>",methods=['POST','GET'])
-  def questions(question_id):
-        if(request.method == 'GET'):
-          question = Question.query.filter(Question.id == question_id).first()
-          if(question is None):
-                return abort(404)
-          return jsonify({
-            'success':True,
-            'question':question.format()
-          })
-        elif(request.method == 'POST'):    
-          data = request.get_json()
-          question = Question.query.filter(Question.id == question_id).first()
-          if 'question' in data:
-              question.question = data['question']
-          if 'answer' in data:
-                question.answer = data['answer']
-          try:
-            question.update()
-          except:
-            db.session.rollback()
-          finally:
-            db.session.close()
-          return jsonify({
-            "success":True
-          })
+  
 
 
 
