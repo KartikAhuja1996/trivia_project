@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, abort, jsonify,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from sqlalchemy.sql import func
 import random
 
 from models import setup_db, Question, Category,db
@@ -46,7 +47,7 @@ def create_app(test_config=None):
   @app.route("/categories",methods=['GET','POST'])
   def get_categories():
     if(request.method =='GET'):
-      categories = Category.query.all()
+      categories = Category.query.order_by(Category.id.desc()).all()
       return jsonify({
         "success":True,
         "categories":[c.format() for c in categories],
@@ -243,44 +244,27 @@ def create_app(test_config=None):
     print(data)
     questions = []
     questions_len = 0
+    question = None
     quiz_category = data.get('quiz_category')
     prevQuestions = data.get('previous_questions')
 
     if((quiz_category is None) or (prevQuestions is None)):
       return abort(400)
     if(data.get('quiz_category') == 0):
-      questions = Question.query.all()
+      questions = Question.query.filter(Question.id.notin_(prevQuestions)).order_by(func.random()).all()
     else:
-      questions = Question.query.filter(Question.category == quiz_category).all()
-    questions_len = len(questions)
+      questions = Question.query.filter(Question.category == quiz_category).filter(Question.id.notin_(prevQuestions)).order_by(func.random()).all()
 
-    def get_random_question():
-      return questions[random.randrange(0,len(questions),1)]
-
-
-    def check_if_already_asked(question):
-      asked = False
-      for q in prevQuestions:
-        if q == question.id:
-          asked = True
-      return asked
-
-    question = get_random_question()
-
-    if(len(prevQuestions) == questions_len):
-          return jsonify({
-        'success':True
+    if(len(questions) >= 1):
+      question = questions[0]
+      return jsonify({
+        'success':True,
+        'question':question.format()
       })
     else:
-      while(check_if_already_asked(question)):
-        question = get_random_question()
-    
-           
-
-    return jsonify({
-      'success':True,
-      'question':question.format()
-    })
+      return jsonify({
+        "success":True
+      })
 
   # get the question by the id or update the question based on the request data
   @app.route("/questions/<int:question_id>",methods=['POST','GET'])

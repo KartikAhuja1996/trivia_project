@@ -38,8 +38,9 @@ class TriviaTestCase(unittest.TestCase):
     def test_get_categories(self):
         res = self.client().get("/categories")
         data = json.loads(res.data)
+        categories = Category.query.all();
         self.assertEqual(data['success'],True)
-        self.assertEqual(data['categories_count'],1)
+        self.assertEqual(data['categories_count'],len(categories))
 
     
 
@@ -123,9 +124,12 @@ class TriviaTestCase(unittest.TestCase):
     def test_quiz_question_without_previous_questions(self):
         res = self.client().post("/quizzes",json={'quiz_category':1,'previous_questions':[]})
         data = json.loads(res.data)
-        self.assertEqual(data['success'],True)
         self.assertIsNotNone(data['question'])
-        self.assertEqual(data['question']['category'],Category.query.get(1).type)
+        actual_data = Question.query.get(data['question']['id'])
+        self.assertEqual(data['success'],True)
+        self.assertEqual(data['question']['category'],Category.query.get(actual_data.category).type)
+        self.assertEqual(data['question']['question'],actual_data.question)
+        self.assertEqual(data['question']['answer'],actual_data.answer)
 
     # testing get quiz question api with all the previous questions already present in the previous_questions key
     def test_quiz_question_with_all_previous_questions_in_query(self):
