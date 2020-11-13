@@ -248,8 +248,17 @@ def create_app(test_config=None):
     quiz_category = data.get('quiz_category')
     prevQuestions = data.get('previous_questions')
 
+
+    # check if quzi_category is none or previous_questions is none
     if((quiz_category is None) or (prevQuestions is None)):
       return abort(400)
+    
+    # if previous asked questions is greater than or equal to total asked questions 
+    if(len(prevQuestions) >= 5):
+      return jsonify({
+        "success":True
+      })
+    
     if(data.get('quiz_category') == 0):
       questions = Question.query.filter(Question.id.notin_(prevQuestions)).order_by(func.random()).all()
     else:
